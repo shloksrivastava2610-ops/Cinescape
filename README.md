@@ -1,4 +1,4 @@
-# Cinescape — Movie & Series Discovery App
+# Cinetale — Movie & Series Discovery App
 
 A web application to discover, search, and explore movies and TV series.
 Built as part of a JavaScript + API Integration college project.
