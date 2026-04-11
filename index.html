@@ -5,28 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CineVerse</title>
     <link rel="stylesheet" href="style.css">
+     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
 </head>
 <body>
 
     <header>
-        <h1>🎬 CineVerse</h1>
+        <h1> CineVerse</h1>
+        <nav>
+            <button class="nav-btn active" onclick="switchTab('movies')">Movies</button>
+            <button class="nav-btn" onclick="switchTab('series')">Series</button>
+        </nav>
     </header>
 
     <div id="loader">
-        <p>Loading...</p>
+        <div class="spinner"></div>
     </div>
 
     <main>
-        <section>
-            <h2>🔥 Trending Movies</h2>
+       <section id="movies-section">
+            <h2> Trending Movies</h2>
             <div id="movies-container" class="grid"></div>
         </section>
 
-        <section>
-            <h2>📺 Trending Series</h2>
+         <section id="series-section" style="display:none">
+            <h2> Trending Series</h2>
             <div id="series-container" class="grid"></div>
         </section>
     </main>
+
 
     <script src="config.js"></script>
     <script src="api.js"></script>

@@ -1,9 +1,11 @@
 function showLoader() {
-    document.getElementById("loader").style.display = "block";
+    const loader = document.getElementById("loader");
+    loader.style.display = "flex";
 }
 
 function hideLoader() {
-    document.getElementById("loader").style.display = "none";
+    const loader = document.getElementById("loader");
+    loader.style.display = "none";
 }
 
 function displayCards(items, containerId) {
@@ -14,7 +16,7 @@ function displayCards(items, containerId) {
         return;
     }
 
-    container.innerHTML = items.map(item => `
+    container.innerHTML += items.map(item => `
         <div class="card">
             <img 
                 src="${IMG_URL}${item.poster_path}" 
@@ -23,11 +25,29 @@ function displayCards(items, containerId) {
             />
             <div class="card-info">
                 <h3>${item.title || item.name}</h3>
-                <p>⭐ ${item.vote_average.toFixed(1)}</p>
-                <p>📅 ${item.release_date || item.first_air_date || "N/A"}</p>
+                <p class="rating">⭐ ${item.vote_average.toFixed(1)}</p>
+                <p class="date">📅 ${item.release_date || item.first_air_date || "N/A"}</p>
             </div>
         </div>
     `).join("");
+}
+
+function switchTab(type) {
+    const moviesSection = document.getElementById("movies-section");
+    const seriesSection = document.getElementById("series-section");
+    const buttons = document.querySelectorAll(".nav-btn");
+
+    if (type === "movies") {
+        moviesSection.style.display = "block";
+        seriesSection.style.display = "none";
+        buttons[0].classList.add("active");
+        buttons[1].classList.remove("active");
+    } else {
+        moviesSection.style.display = "none";
+        seriesSection.style.display = "block";
+        buttons[0].classList.remove("active");
+        buttons[1].classList.add("active");
+    }
 }
 
 async function init() {
