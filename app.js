@@ -2,6 +2,8 @@ let allMovies = [];
 let allSeries = [];
 let currentTab = "movies";
 let favourites = JSON.parse(localStorage.getItem("favourites")) || [];
+let currentPage = 1;
+let isLoading = false;
 
 function showLoader() {
     document.getElementById("loader").style.display = "flex";
@@ -9,6 +11,14 @@ function showLoader() {
 
 function hideLoader() {
     document.getElementById("loader").style.display = "none";
+}
+
+function showBottomLoader() {
+    document.getElementById("bottom-loader").style.display = "flex";
+}
+
+function hideBottomLoader() {
+    document.getElementById("bottom-loader").style.display = "none";
 }
 
 function saveFavourites() {
@@ -54,19 +64,24 @@ function createCard(item) {
     `;
 }
 
-function displayCards(items, containerId) {
+function displayCards(items, containerId, append = false) {
     const container = document.getElementById(containerId);
 
-    if (items.length === 0) {
-        container.innerHTML = "<p style='color:#888; padding:20px'>No results found.</p>";
-        return;
+    if (!append) {
+        if (items.length === 0) {
+            container.innerHTML = "<p style='color:#888; padding:20px'>No results found.</p>";
+            return;
+        }
+        container.innerHTML = items.map(item => createCard(item)).join("");
+    } else {
+        container.innerHTML += items.map(item => createCard(item)).join("");
     }
-
-    container.innerHTML = items.map(item => createCard(item)).join("");
 }
 
 function switchTab(type) {
     currentTab = type;
+    currentPage = 1;
+
     const moviesSection = document.getElementById("movies-section");
     const seriesSection = document.getElementById("series-section");
     const favouritesSection = document.getElementById("favourites-section");
@@ -93,7 +108,6 @@ function switchTab(type) {
     applyFilters();
 }
 
-// DEBOUNCE
 function debounce(func, delay) {
     let timer;
     return function(...args) {
@@ -102,10 +116,8 @@ function debounce(func, delay) {
     };
 }
 
-// SORT using HOF
 function applySort(data) {
     const sortValue = document.getElementById("sort-filter").value;
-
     return [...data].sort((a, b) => {
         if (sortValue === "rating-high") return b.vote_average - a.vote_average;
         if (sortValue === "rating-low") return a.vote_average - b.vote_average;
@@ -117,7 +129,6 @@ function applySort(data) {
     });
 }
 
-// FILTER + SEARCH using HOFs
 function applyFilters() {
     const searchQuery = document.getElementById("search-input").value.toLowerCase();
     const selectedGenre = document.getElementById("genre-filter").value;
@@ -139,12 +150,38 @@ function applyFilters() {
     displayCards(filtered, containerId);
 }
 
-// EVENT LISTENERS
+async function loadMoreData() {
+    if (isLoading || currentTab === "favourites") return;
+    isLoading = true;
+    currentPage++;
+    showBottomLoader();
+
+    const type = currentTab === "movies" ? "movie" : "tv";
+    const newItems = await fetchTrendingPage(type, currentPage);
+
+    if (currentTab === "movies") {
+        allMovies = [...allMovies, ...newItems];
+    } else {
+        allSeries = [...allSeries, ...newItems];
+    }
+
+    const containerId = currentTab === "movies" ? "movies-container" : "series-container";
+    displayCards(newItems, containerId, true);
+
+    hideBottomLoader();
+    isLoading = false;
+}
+
+window.addEventListener("scroll", debounce(() => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
+        loadMoreData();
+    }
+}, 200));
+
 document.getElementById("search-input").addEventListener(
     "input",
     debounce(applyFilters, 400)
 );
-
 document.getElementById("genre-filter").addEventListener("change", applyFilters);
 document.getElementById("sort-filter").addEventListener("change", applyFilters);
 
