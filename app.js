@@ -1,15 +1,57 @@
 let allMovies = [];
 let allSeries = [];
 let currentTab = "movies";
+let favourites = JSON.parse(localStorage.getItem("favourites")) || [];
 
 function showLoader() {
-    const loader = document.getElementById("loader");
-    loader.style.display = "flex";
+    document.getElementById("loader").style.display = "flex";
 }
 
 function hideLoader() {
-    const loader = document.getElementById("loader");
-    loader.style.display = "none";
+    document.getElementById("loader").style.display = "none";
+}
+
+function saveFavourites() {
+    localStorage.setItem("favourites", JSON.stringify(favourites));
+}
+
+function toggleFavourite(item) {
+    const exists = favourites.find(fav => fav.id === item.id);
+    if (exists) {
+        favourites = favourites.filter(fav => fav.id !== item.id);
+    } else {
+        favourites.push(item);
+    }
+    saveFavourites();
+    applyFilters();
+}
+
+function isFavourite(id) {
+    return favourites.some(fav => fav.id === id);
+}
+
+function createCard(item) {
+    const isFav = isFavourite(item.id);
+    return `
+        <div class="card">
+            <img 
+                src="${IMG_URL}${item.poster_path}" 
+                alt="${item.title || item.name}"
+                onerror="this.src='https://via.placeholder.com/200x300?text=No+Image'"
+            />
+            <button 
+                class="fav-btn ${isFav ? 'active' : ''}" 
+                onclick='toggleFavourite(${JSON.stringify(item)})'
+            >
+                ${isFav ? '❤️' : '🤍'}
+            </button>
+            <div class="card-info">
+                <h3>${item.title || item.name}</h3>
+                <p class="rating">⭐ ${item.vote_average.toFixed(1)}</p>
+                <p class="date">📅 ${item.release_date || item.first_air_date || "N/A"}</p>
+            </div>
+        </div>
+    `;
 }
 
 function displayCards(items, containerId) {
@@ -20,50 +62,59 @@ function displayCards(items, containerId) {
         return;
     }
 
-    container.innerHTML = items.map(item => `
-        <div class="card">
-            <img 
-                src="${IMG_URL}${item.poster_path}" 
-                alt="${item.title || item.name}"
-                onerror="this.src='https://via.placeholder.com/200x300?text=No+Image'"
-            />
-            <div class="card-info">
-                <h3>${item.title || item.name}</h3>
-                <p class="rating">⭐ ${item.vote_average.toFixed(1)}</p>
-                <p class="date">📅 ${item.release_date || item.first_air_date || "N/A"}</p>
-            </div>
-        </div>
-    `).join("");
+    container.innerHTML = items.map(item => createCard(item)).join("");
 }
 
 function switchTab(type) {
     currentTab = type;
     const moviesSection = document.getElementById("movies-section");
     const seriesSection = document.getElementById("series-section");
+    const favouritesSection = document.getElementById("favourites-section");
     const buttons = document.querySelectorAll(".nav-btn");
+
+    moviesSection.style.display = "none";
+    seriesSection.style.display = "none";
+    favouritesSection.style.display = "none";
+    buttons.forEach(btn => btn.classList.remove("active"));
 
     if (type === "movies") {
         moviesSection.style.display = "block";
-        seriesSection.style.display = "none";
         buttons[0].classList.add("active");
-        buttons[1].classList.remove("active");
-    } else {
-        moviesSection.style.display = "none";
+    } else if (type === "series") {
         seriesSection.style.display = "block";
-        buttons[0].classList.remove("active");
         buttons[1].classList.add("active");
+    } else if (type === "favourites") {
+        favouritesSection.style.display = "block";
+        buttons[2].classList.add("active");
+        displayCards(favourites, "favourites-container");
+        return;
     }
 
     applyFilters();
 }
 
-// DEBOUNCE FUNCTION
+// DEBOUNCE
 function debounce(func, delay) {
     let timer;
     return function(...args) {
         clearTimeout(timer);
         timer = setTimeout(() => func.apply(this, args), delay);
     };
+}
+
+// SORT using HOF
+function applySort(data) {
+    const sortValue = document.getElementById("sort-filter").value;
+
+    return [...data].sort((a, b) => {
+        if (sortValue === "rating-high") return b.vote_average - a.vote_average;
+        if (sortValue === "rating-low") return a.vote_average - b.vote_average;
+        if (sortValue === "date-new") return new Date(b.release_date || b.first_air_date) - new Date(a.release_date || a.first_air_date);
+        if (sortValue === "date-old") return new Date(a.release_date || a.first_air_date) - new Date(b.release_date || b.first_air_date);
+        if (sortValue === "alpha-asc") return (a.title || a.name).localeCompare(b.title || b.name);
+        if (sortValue === "alpha-desc") return (b.title || b.name).localeCompare(a.title || a.name);
+        return 0;
+    });
 }
 
 // FILTER + SEARCH using HOFs
@@ -84,6 +135,7 @@ function applyFilters() {
             return item.genre_ids.includes(Number(selectedGenre));
         });
 
+    filtered = applySort(filtered);
     displayCards(filtered, containerId);
 }
 
@@ -94,6 +146,7 @@ document.getElementById("search-input").addEventListener(
 );
 
 document.getElementById("genre-filter").addEventListener("change", applyFilters);
+document.getElementById("sort-filter").addEventListener("change", applyFilters);
 
 async function init() {
     showLoader();

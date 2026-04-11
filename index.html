@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CineVerse</title>
+    <title>CineScape</title>
     <link rel="stylesheet" href="style.css">
-     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <header>
-         <div class="logo"> CineScape</div>
+        <div class="logo"> CineScape</div>
         <nav>
             <button class="nav-btn active" onclick="switchTab('movies')">Movies</button>
             <button class="nav-btn" onclick="switchTab('series')">Series</button>
+            <button class="nav-btn" onclick="switchTab('favourites')"> Favourites</button>
         </nav>
     </header>
 
@@ -35,25 +35,37 @@
             <option value="18">Drama</option>
             <option value="53">Thriller</option>
         </select>
+        <select id="sort-filter">
+            <option value="">Sort By</option>
+            <option value="rating-high"> Rating: High to Low</option>
+            <option value="rating-low"> Rating: Low to High</option>
+            <option value="date-new"> Newest First</option>
+            <option value="date-old"> Oldest First</option>
+            <option value="alpha-asc">A - Z</option>
+            <option value="alpha-desc"> Z - A</option>
+        </select>
     </div>
-    </header>
 
     <div id="loader">
         <div class="spinner"></div>
     </div>
 
     <main>
-       <section id="movies-section">
+        <section id="movies-section">
             <h2> Trending Movies</h2>
             <div id="movies-container" class="grid"></div>
         </section>
 
-         <section id="series-section" style="display:none">
+        <section id="series-section" style="display:none">
             <h2> Trending Series</h2>
             <div id="series-container" class="grid"></div>
         </section>
-    </main>
 
+        <section id="favourites-section" style="display:none">
+            <h2> My Favourites</h2>
+            <div id="favourites-container" class="grid"></div>
+        </section>
+    </main>
 
     <script src="config.js"></script>
     <script src="api.js"></script>

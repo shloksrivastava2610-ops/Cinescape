@@ -217,3 +217,46 @@ h2 {
 #genre-filter option {
     background-color: #1a1a1a;
 }
+
+/* SORT */
+#sort-filter {
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: 1px solid #a855f7;
+    background-color: #1a1a1a;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+}
+
+#sort-filter option {
+    background-color: #1a1a1a;
+}
+
+/* FAVOURITE BUTTON */
+.fav-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.6);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.fav-btn:hover {
+    transform: scale(1.2);
+}
+
+.fav-btn.active {
+    background: rgba(168, 85, 247, 0.8);
+}
