@@ -31,7 +31,7 @@ Free and well documented.
 - Milestone 4 - Deployment and final documentation
 
 ## Live Demo
-thecinetale.netlify.app
+https://thecinetale.netlify.app/
 
 ## Author
 Shlok Srivastava
